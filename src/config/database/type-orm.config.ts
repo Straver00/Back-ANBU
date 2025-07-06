@@ -3,7 +3,10 @@ import { DataSourceOptions } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'node:path';
 
-const caPath = path.resolve(process.cwd(), parsedDatabaseEnv.DB_URL_CA);
+const getCa = () => {
+  const caPath = path.resolve(process.cwd(), parsedDatabaseEnv.DB_URL_CA!);
+  return fs.readFileSync(caPath).toString();
+};
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',
@@ -15,7 +18,7 @@ export const typeOrmConfig: DataSourceOptions = {
   ssl: parsedDatabaseEnv.DB_SSL
     ? {
         rejectUnauthorized: true,
-        ca: fs.readFileSync(caPath).toString(),
+        ca: getCa(),
       }
     : undefined,
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
