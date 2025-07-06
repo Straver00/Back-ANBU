@@ -17,6 +17,8 @@ export const databaseSchema = z.object({
   DB_SSL: z
     .preprocess((val) => val === 'true' || val === true, z.boolean())
     .default(DEFAULT_DB_SSL),
+
+  DB_URL_CA: z.string(),
 });
 
 export type DatabaseEnvSchema = z.infer<typeof databaseSchema>;
