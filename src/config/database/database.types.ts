@@ -5,4 +5,5 @@ export interface DatabaseConfig {
   password: string;
   database: string;
   ssl: boolean;
+  ca?: string;
 }

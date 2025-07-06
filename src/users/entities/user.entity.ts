@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { TimestampedEntity } from '../../common/entities/timestamped.entity';
+import { Message } from '../../chat/entities/message.entity';
 
 export enum UserRole {
   KAGE = 'kage',
@@ -7,7 +9,7 @@ export enum UserRole {
 }
 
 @Entity('users')
-export class User {
+export class User extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -27,5 +29,8 @@ export class User {
   role: UserRole;
 
   @Column({ default: true })
-  active: boolean;
+  isActive: boolean;
+
+  @OneToMany(() => Message, (message) => message.user)
+  messages: Message[];
 }
