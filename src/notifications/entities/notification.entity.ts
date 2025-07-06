@@ -11,6 +11,11 @@ export enum NotificationType {
   INFO = 'info',
 }
 
+export enum DecisionStatus {
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
+}
+
 @Entity('notifications')
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
@@ -28,8 +33,12 @@ export class Notification {
   @Column({ default: false })
   isRead: boolean;
 
-  @Column({ nullable: true })
-  decisionStatus: 'accepted' | 'rejected' | null;
+  @Column({
+    type: 'enum',
+    enum: DecisionStatus,
+    nullable: true,
+  })
+  decisionStatus: DecisionStatus | null;
 
   @CreateDateColumn()
   createdAt: Date;

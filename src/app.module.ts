@@ -5,19 +5,24 @@ import { MissionsModule } from './missions/missions.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
-import { ConfigModule } from './config/config.module';
-import { DatabaseModule } from './database/database.module';
+import { ConfigurationModule } from './config/config.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from './config/database/type-orm.config';
 
 @Module({
   imports: [
+    ConfigurationModule,
+    TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule,
     UsersModule,
     MissionsModule,
     ChatModule,
     NotificationsModule,
     ReportsModule,
-    ConfigModule,
-    DatabaseModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
