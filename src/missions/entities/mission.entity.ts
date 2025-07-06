@@ -2,12 +2,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Message } from '../../chat/entities/message.entity';
+import { TimestampedEntity } from '../../common/entities/timestamped.entity';
 
 export enum MissionLevel {
   BAJA = 'Baja',
@@ -24,7 +25,7 @@ export enum MissionStatus {
 }
 
 @Entity('missions')
-export class Mission {
+export class Mission extends TimestampedEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -50,9 +51,6 @@ export class Mission {
   @JoinTable()
   assignedAgents: User[];
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @OneToMany(() => Message, (message) => message.user)
+  messages: Message[];
 }
