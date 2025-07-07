@@ -6,20 +6,11 @@ import {
   Param,
   Put,
   Delete,
-  Req,
-  UseGuards,
 } from '@nestjs/common';
 
-import { Request } from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-
-interface JwtUser {
-  userId: string;
-  // otros campos si los necesitas
-}
 
 @Controller('users')
 export class UsersController {
@@ -51,9 +42,9 @@ export class UsersController {
     return { message: 'Usuario eliminado correctamente' };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  async getProfile(@Req() req: Request & { user: JwtUser }) {
-    return this.usersService.getProfile(req.user.userId);
+  @Post(':id/restore')
+  async restore(@Param('id') id: string) {
+    await this.usersService.restore(id);
+    return { message: 'Usuario restaurado correctamente' };
   }
 }

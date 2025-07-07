@@ -31,39 +31,39 @@ export class Message extends TimestampedEntity {
    * The user who sent the message.
    * Nullable for system-generated messages.
    */
-  @ManyToOne(() => User, (user) => user.messages, {
-    nullable: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'user_id' })
-  user?: User;
+  // @ManyToOne(() => User, (user) => user.messages, {
+  //   nullable: true,
+  //   onDelete: 'CASCADE',
+  // })
+  // @JoinColumn({ name: 'user_id' })
+  // user?: User;
 
-  /**
-   * ID of the user who sent the message.
-   * Matches `user.id` if present.
-   */
-  @Column({ name: 'user_id', type: 'uuid' })
-  @RelationId((message: Message) => message.user)
-  @Index()
-  userId?: string;
+  // /**
+  //  * ID of the user who sent the message.
+  //  * Matches `user.id` if present.
+  //  */
+  // @Column({ name: 'user_id', type: 'uuid' })
+  // @RelationId((message: Message) => message.user)
+  // @Index()
+  // userId?: string;
 
   /**
    * The mission this message belongs to.
    */
-  @ManyToOne(() => Mission, (mission) => mission.messages, {
-    nullable: false,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'mission_id' })
-  mission: Mission;
+  // @ManyToOne(() => Mission, (mission) => mission.messages, {
+  //   nullable: false,
+  //   onDelete: 'CASCADE',
+  // })
+  // @JoinColumn({ name: 'mission_id' })
+  // mission: Mission;
 
   /**
    * ID of the associated mission.
    */
-  @Column({ name: 'mission_id', type: 'uuid' })
-  @RelationId((message: Message) => message.mission)
-  @Index()
-  missionId: string;
+  // @Column({ name: 'mission_id', type: 'uuid' })
+  // @RelationId((message: Message) => message.mission)
+  // @Index()
+  // missionId: string;
 
   /**
    * Message content.

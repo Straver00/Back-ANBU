@@ -21,7 +21,7 @@ export const typeOrmConfig: DataSourceOptions = {
         ca: getCa(),
       }
     : undefined,
-  entities: [__dirname + '/**/*.entity{.ts,.js}'],
+  entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../../migrations/**/*{.ts,.js}'],
   synchronize: false,
 };

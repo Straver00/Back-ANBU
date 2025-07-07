@@ -51,6 +51,6 @@ export class Mission extends TimestampedEntity {
   @JoinTable()
   assignedAgents: User[];
 
-  @OneToMany(() => Message, (message) => message.user)
-  messages: Message[];
+  // @OneToMany(() => Message, (message) => message.user)
+  // messages: Message[];
 }

@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +15,31 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user: User = this.userRepository.create(createUserDto);
+    console.log('createUserDto', createUserDto);
+    // Verificar si falta algun campo obligatorio
+    if (
+      !createUserDto.fullName ||
+      !createUserDto.alias ||
+      !createUserDto.email ||
+      !createUserDto.password ||
+      !createUserDto.role
+    ) {
+      throw new ConflictException('Faltan campos obligatorios.');
+    }
+    const existingUser = await this.userRepository.findOne({
+      where: [{ email: createUserDto.email }],
+    });
+    if (existingUser) throw new ConflictException('El email ya está en uso.');
+    const existingAlias = await this.userRepository.findOne({
+      where: { alias: createUserDto.alias },
+    });
+    if (existingAlias) throw new ConflictException('El alias ya está en uso.');
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const user: User = this.userRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
     return await this.userRepository.save(user);
   }
 
@@ -34,11 +60,17 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    const user = await this.findOne(id);
-    await this.userRepository.remove(user);
+    const result = await this.userRepository.softDelete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
   }
 
-  async getProfile(userId: string): Promise<User> {
-    return await this.findOne(userId);
+  async restore(id: string): Promise<void> {
+    const result = await this.userRepository.restore(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+  }
   }
 }

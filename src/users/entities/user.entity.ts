@@ -1,36 +1,52 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { TimestampedEntity } from '../../common/entities/timestamped.entity';
-import { Message } from '../../chat/entities/message.entity';
-
-export enum UserRole {
-  KAGE = 'kage',
-  AGENTE = 'agente',
-  TRAIDOR = 'traidor',
-}
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { UserRole } from '../enum/userRole.enum';
+import { Exclude } from 'class-transformer';
+// import { Message } from '../../chat/entities/message.entity';
 
 @Entity('users')
-export class User extends TimestampedEntity {
+@Unique(['email'])
+@Unique(['alias'])
+export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  full_name: string;
+  @Column({ name: 'full_name', type: 'varchar', length: 100 })
+  fullName: string;
 
-  @Column()
+  @Column({ name: 'alias', type: 'varchar', length: 100 })
   alias: string;
 
-  @Column()
+  @Column({ name: 'email', type: 'varchar', length: 50 })
   email: string;
 
-  @Column()
+  @Column({ name: 'password', type: 'varchar', length: 60, select: false })
+  @Exclude()
   password: string;
 
-  @Column({ type: 'enum', enum: UserRole })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.AGENTE })
   role: UserRole;
 
   @Column({ default: true })
-  isActive: boolean;
+  active: boolean;
 
-  @OneToMany(() => Message, (message) => message.user)
-  messages: Message[];
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt?: Date;
+
+  // @OneToMany(() => Message, (message) => message.user)
+  // messages: Message[];
 }
