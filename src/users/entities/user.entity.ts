@@ -38,6 +38,9 @@ export class User {
   @Column({ default: true })
   active: boolean;
 
+  // @OneToMany(() => Message, (message) => message.user)
+  // messages: Message[];
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
@@ -46,7 +49,4 @@ export class User {
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date;
-
-  // @OneToMany(() => Message, (message) => message.user)
-  // messages: Message[];
 }

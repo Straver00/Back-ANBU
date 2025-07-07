@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
+//import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { MissionsModule } from './missions/missions.module';
-import { ChatModule } from './chat/chat.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { ReportsModule } from './reports/reports.module';
+import { RegularMissionsModule } from './regularMissions/regularMissions.module';
+//import { ChatModule } from './chat/chat.module';
+//import { NotificationsModule } from './notifications/notifications.module';
+//import { ReportsModule } from './reports/reports.module';
 import { ConfigurationModule } from './config/config.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,12 +15,12 @@ import { typeOrmConfig } from './config/database/type-orm.config';
   imports: [
     ConfigurationModule,
     TypeOrmModule.forRoot(typeOrmConfig),
-    AuthModule,
+    //AuthModule,
     UsersModule,
-    MissionsModule,
-    ChatModule,
-    NotificationsModule,
-    ReportsModule,
+    RegularMissionsModule,
+    //ChatModule,
+    //NotificationsModule,
+    //ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

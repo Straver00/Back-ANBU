@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { TimestampedEntity } from 'src/common/entities/timestamped.entity';
-import { Mission } from '../../missions/entities/mission.entity';
+//import { Mission } from '../../regularMissions/entities/regularMission.entity';
 
 /**
  * Represents a single chat message associated with a mission.
