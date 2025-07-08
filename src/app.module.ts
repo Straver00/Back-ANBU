@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-//import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RegularMissionsModule } from './regularMissions/regularMissions.module';
 //import { ChatModule } from './chat/chat.module';
@@ -15,7 +15,7 @@ import { typeOrmConfig } from './config/database/type-orm.config';
   imports: [
     ConfigurationModule,
     TypeOrmModule.forRoot(typeOrmConfig),
-    //AuthModule,
+    AuthModule,
     UsersModule,
     RegularMissionsModule,
     //ChatModule,

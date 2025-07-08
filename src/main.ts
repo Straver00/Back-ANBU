@@ -10,7 +10,6 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const { port } = configService.getAppConfig();
-  await app.listen(port);
 
   // Enable global pipes for request validation and data transformation
   app.useGlobalPipes(
@@ -60,6 +59,8 @@ async function bootstrap() {
   });
 
   app.useWebSocketAdapter(new CustomSocketAdapter(app));
+
+  await app.listen(port);
 
   const logger = new Logger('Bootstrap');
   logger.log(`🚀 App corriendo en el puerto ${port}`);

@@ -48,29 +48,42 @@ export class RegularMissionsService {
     }
 
     const mission = this.regularMissionRepository.create({
-      ...createRegularMissionDto,
+      codeName: createRegularMissionDto.codeName,
+      objective: createRegularMissionDto.objective,
+      description: createRegularMissionDto.description,
+      deadline: new Date(createRegularMissionDto.deadline),
+      priority: createRegularMissionDto.priority,
+      status: createRegularMissionDto.status,
       captain,
-      assignedAgents:
-        createRegularMissionDto.assignedAgents.length > 0
-          ? await this.userRepository.find({
-              where: { id: In(createRegularMissionDto.assignedAgents) },
-            })
-          : [],
     });
 
-    return await this.regularMissionRepository.save(mission);
+    const savedMission = await this.regularMissionRepository.save(mission);
+
+    // Crear las participaciones de agentes
+    if (createRegularMissionDto.assignedAgents.length > 0) {
+      const participations = createRegularMissionDto.assignedAgents.map(
+        (agentId) =>
+          this.missionParticipationRepository.create({
+            mission: savedMission,
+            user: { id: agentId } as User,
+          }),
+      );
+      await this.missionParticipationRepository.save(participations);
+    }
+
+    return await this.findOne(savedMission.id);
   }
 
   async findAll(): Promise<RegularMission[]> {
     return await this.regularMissionRepository.find({
-      relations: ['captain', 'assignedAgents'],
+      relations: ['captain', 'participations', 'participations.user'],
     });
   }
 
   async findOne(id: string): Promise<RegularMission> {
     const mission = await this.regularMissionRepository.findOne({
       where: { id },
-      relations: ['captain', 'assignedAgents'],
+      relations: ['captain', 'participations', 'participations.user'],
     });
     if (!mission) throw new NotFoundException('Misión no encontrada');
     return mission;
@@ -82,7 +95,6 @@ export class RegularMissionsService {
   ): Promise<RegularMission> {
     const mission = await this.findOne(id);
 
-    // Verificar que el capitán existe si se está actualizando
     if (updateRegularMissionDto.captain_id) {
       const captain = await this.userRepository.findOne({
         where: { id: updateRegularMissionDto.captain_id },
@@ -93,7 +105,6 @@ export class RegularMissionsService {
       mission.captain = captain;
     }
 
-    // Verificar que los agentes asignados existen si se están actualizando
     if (updateRegularMissionDto.assignedAgents) {
       const assignedAgents = await this.userRepository.find({
         where: { id: In(updateRegularMissionDto.assignedAgents) },
@@ -103,19 +114,19 @@ export class RegularMissionsService {
       ) {
         throw new BadRequestException('Uno o más agentes asignados no existen');
       }
-      mission.assignedAgents = assignedAgents;
+
+      await this.missionParticipationRepository.delete({
+        mission_id: mission.id,
+      });
+      const participations = updateRegularMissionDto.assignedAgents.map(
+        (agentId) =>
+          this.missionParticipationRepository.create({
+            user_id: agentId,
+            mission_id: mission.id,
+          }),
+      );
+      await this.missionParticipationRepository.save(participations);
     }
-
-    // Actualizar otros campos
-    Object.assign(mission, {
-      codeName: updateRegularMissionDto.codeName,
-      objective: updateRegularMissionDto.objective,
-      description: updateRegularMissionDto.description,
-      deadline: updateRegularMissionDto.deadline,
-      priority: updateRegularMissionDto.priority,
-      status: updateRegularMissionDto.status,
-    });
-
     return await this.regularMissionRepository.save(mission);
   }
 
@@ -138,30 +149,31 @@ export class RegularMissionsService {
   async findByCaptain(captainId: string): Promise<RegularMission[]> {
     return await this.regularMissionRepository.find({
       where: { captain: { id: captainId } },
-      relations: ['captain', 'assignedAgents'],
+      relations: ['captain', 'participations', 'participations.user'],
     });
   }
 
   async findByStatus(status: MissionStatus): Promise<RegularMission[]> {
     return await this.regularMissionRepository.find({
       where: { status },
-      relations: ['captain', 'assignedAgents'],
+      relations: ['captain', 'participations', 'participations.user'],
     });
   }
 
   async findByPriority(priority: MissionPriority): Promise<RegularMission[]> {
     return await this.regularMissionRepository.find({
       where: { priority },
-      relations: ['captain', 'assignedAgents'],
+      relations: ['captain', 'participations', 'participations.user'],
     });
   }
 
   async findAssignedToAgent(agentId: string): Promise<RegularMission[]> {
     return await this.regularMissionRepository
       .createQueryBuilder('mission')
-      .leftJoinAndSelect('mission.assignedAgents', 'agent')
+      .leftJoinAndSelect('mission.participations', 'participation')
+      .leftJoinAndSelect('participation.user', 'user')
       .leftJoinAndSelect('mission.captain', 'captain')
-      .where('agent.id = :agentId', { agentId })
+      .where('user.id = :agentId', { agentId })
       .getMany();
   }
 }

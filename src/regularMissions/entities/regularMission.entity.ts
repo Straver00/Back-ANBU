@@ -2,16 +2,15 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToMany,
-  JoinTable,
-  //OneToMany,
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { MissionParticipation } from './missionParticipation.entity';
 //import { Message } from '../../chat/entities/message.entity';
 import { MissionPriority } from '../enum/missionPriority.enum';
 import { MissionStatus } from '../enum/missionStatus.enum';
@@ -51,9 +50,18 @@ export class RegularMission {
   })
   status: MissionStatus;
 
-  @ManyToMany(() => User, { eager: true })
-  @JoinTable()
-  assignedAgents: User[];
+  // Usar la tabla mission_participation en lugar de JoinTable automático
+  @OneToMany(
+    () => MissionParticipation,
+    (participation) => participation.mission,
+    { eager: true },
+  )
+  participations: MissionParticipation[];
+
+  // Propiedad virtual para acceder a los agentes asignados
+  get assignedAgents(): User[] {
+    return this.participations?.map((p) => p.user) || [];
+  }
 
   // Relación con mensajes (descomenta si la usas)
   // @OneToMany(() => Message, (message) => message.mission)

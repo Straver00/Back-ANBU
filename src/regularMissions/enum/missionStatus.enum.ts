@@ -1,6 +1,6 @@
 export enum MissionStatus {
-  EN_PROCESO = 'En Proceso',
-  RETRASO = 'Retraso',
-  FRACASO = 'Fracaso',
-  COMPLETADA = 'Completada',
+  EN_PROCESO = 'en proceso',
+  RETRASO = 'retraso',
+  FRACASO = 'fracaso',
+  COMPLETADA = 'completada',
 }

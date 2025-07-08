@@ -48,15 +48,15 @@ export class CreateRegularMissions1751855553773 implements MigrationInterface {
           {
             name: 'priority',
             type: 'enum',
-            enum: ['Baja', 'Media', 'Alta', 'Crítica'],
-            default: "'Baja'",
+            enum: ['baja', 'media', 'alta', 'critica'],
+            default: "'baja'",
             isNullable: false,
           },
           {
             name: 'status',
             type: 'enum',
-            enum: ['En Proceso', 'Retraso', 'Fracaso', 'Completada'],
-            default: "'En Proceso'",
+            enum: ['en proceso', 'retraso', 'fracaso', 'completada'],
+            default: "'en proceso'",
             isNullable: false,
           },
           {

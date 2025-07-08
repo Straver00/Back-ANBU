@@ -15,11 +15,22 @@ export class CreateUserDto {
   @MaxLength(100, {
     message: 'El nombre completo no puede exceder los 100 caracteres.',
   })
+  @MinLength(2, {
+    message: 'El nombre completo debe tener al menos 2 caracteres.',
+  })
+  @Matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, {
+    message: 'El nombre completo solo puede contener letras y espacios.',
+  })
   fullName: string;
 
   @IsNotEmpty({ message: 'El alias es obligatorio.' })
   @IsString({ message: 'El alias debe ser texto.' })
   @MaxLength(100, { message: 'El alias no puede exceder los 100 caracteres.' })
+  @MinLength(3, { message: 'El alias debe tener al menos 3 caracteres.' })
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'El alias solo puede contener letras, números, guiones y guiones bajos.',
+  })
   alias: string;
 
   @IsNotEmpty({ message: 'El email es obligatorio.' })
@@ -35,11 +46,13 @@ export class CreateUserDto {
     message: 'La contraseña no puede exceder los 60 caracteres.',
   })
   @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: 'La contraseña debe contener letras y números.',
+    message: 'La contraseña debe contener al menos una letra y un número.',
   })
   password: string;
 
   @IsNotEmpty({ message: 'El rol es obligatorio.' })
-  @IsEnum(UserRole, { message: 'El rol debe ser válido.' })
+  @IsEnum(UserRole, {
+    message: `El rol debe ser uno de los siguientes: ${Object.values(UserRole).join(', ')}.`,
+  })
   role: UserRole;
 }

@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-  OneToMany,
+  //OneToMany,
 } from 'typeorm';
 import { UserRole } from '../enum/userRole.enum';
 import { Exclude } from 'class-transformer';
