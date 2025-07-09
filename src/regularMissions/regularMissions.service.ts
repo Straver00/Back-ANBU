@@ -83,7 +83,6 @@ export class RegularMissionsService {
   async findOne(id: string): Promise<RegularMission> {
     const mission = await this.regularMissionRepository.findOne({
       where: { id },
-      relations: ['captain', 'participations', 'participations.user'],
     });
     if (!mission) throw new NotFoundException('Misión no encontrada');
     return mission;
@@ -91,43 +90,47 @@ export class RegularMissionsService {
 
   async update(
     id: string,
-    updateRegularMissionDto: UpdateRegularMissionDto,
+    updateDto: UpdateRegularMissionDto,
   ): Promise<RegularMission> {
-    const mission = await this.findOne(id);
+    const mission = await this.regularMissionRepository.findOne({
+      where: { id },
+      relations: ['captain'],
+    });
+    if (!mission) throw new NotFoundException('Misión no encontrada');
 
-    if (updateRegularMissionDto.captain_id) {
-      const captain = await this.userRepository.findOne({
-        where: { id: updateRegularMissionDto.captain_id },
+    if (updateDto.captain_id) {
+      const captain = await this.userRepository.findOneBy({
+        id: updateDto.captain_id,
       });
-      if (!captain) {
-        throw new BadRequestException('El capitán especificado no existe');
-      }
+      if (!captain) throw new BadRequestException('Capitán no existe');
       mission.captain = captain;
+      await this.regularMissionRepository.save(mission);
     }
 
-    if (updateRegularMissionDto.assignedAgents) {
+    // Verificar si los agentes existen
+    if (updateDto.assignedAgents) {
       const assignedAgents = await this.userRepository.find({
-        where: { id: In(updateRegularMissionDto.assignedAgents) },
+        where: { id: In(updateDto.assignedAgents) },
       });
-      if (
-        assignedAgents.length !== updateRegularMissionDto.assignedAgents.length
-      ) {
+      if (assignedAgents.length !== updateDto.assignedAgents.length) {
         throw new BadRequestException('Uno o más agentes asignados no existen');
       }
+    }
 
+    if (updateDto.assignedAgents) {
       await this.missionParticipationRepository.delete({
         mission_id: mission.id,
       });
-      const participations = updateRegularMissionDto.assignedAgents.map(
-        (agentId) =>
-          this.missionParticipationRepository.create({
-            user_id: agentId,
-            mission_id: mission.id,
-          }),
+
+      const participations = updateDto.assignedAgents.map((agentId) =>
+        this.missionParticipationRepository.create({
+          mission_id: mission.id,
+          user_id: agentId,
+        }),
       );
       await this.missionParticipationRepository.save(participations);
     }
-    return await this.regularMissionRepository.save(mission);
+    return await this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
