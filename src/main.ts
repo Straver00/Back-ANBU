@@ -4,12 +4,40 @@ import { ConfigService } from './config/config.service';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { CustomSocketAdapter } from './common/adapters/socket-io.adapter';
+import * as session from 'express-session';
+import * as passport from 'passport';
+import * as connectPgSimple from 'connect-pg-simple';
+import { pgSessionPool } from './config/database/pg-session.pool';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  const { port } = configService.getAppConfig();
+
+  const { secret, maxAge, secure, name } = configService.getSessionConfig();
+
+  const PgSession = connectPgSimple(session);
+  app.use(
+    session({
+      store: new PgSession({
+        pool: pgSessionPool,
+        tableName: 'session',
+      }),
+      secret: secret,
+      resave: false,
+      saveUninitialized: false,
+      name: name,
+      cookie: {
+        maxAge: maxAge,
+        httpOnly: true,
+        secure: secure,
+        sameSite: 'lax',
+      },
+    }),
+  );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   // Enable global pipes for request validation and data transformation
   app.useGlobalPipes(
@@ -60,6 +88,7 @@ async function bootstrap() {
 
   app.useWebSocketAdapter(new CustomSocketAdapter(app));
 
+  const { port } = configService.getAppConfig();
   await app.listen(port);
 
   const logger = new Logger('Bootstrap');
