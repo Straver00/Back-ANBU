@@ -54,6 +54,24 @@ export class UsersService {
     });
   }
 
+  /**
+   * Retrieves a user by document type and number, including their password.
+   *
+   * ⚠️ This method should **only** be called by the Auth module for password validation.
+   * 🚫 It **must not** be exposed as a public API endpoint to prevent security risks.
+   */
+  async getOneWithPassword(email: string): Promise<User | null> {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      // .leftJoinAndSelect('user.userRoles', 'userRole')
+      // .leftJoinAndSelect('userRole.role', 'role')
+      // .leftJoinAndSelect('role.rolePermissions', 'rolePermission')
+      // .leftJoinAndSelect('rolePermission.permission', 'permission')
+      .where('user.email = :email', { email: email })
+      .getOne();
+  }
+
   async update(
     id: string,
     updateUserDto: UpdateUserDto,
