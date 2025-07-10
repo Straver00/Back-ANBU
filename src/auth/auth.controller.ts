@@ -2,8 +2,9 @@ import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthenticatedRequest } from './intefaces/authenticated-request.interface';
 import { Response } from 'express';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { Auth } from '../common/decorators/auth.decorator';
+import { UserRole } from '../users/enum/userRole.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +21,7 @@ export class AuthController {
     return this.authService.logout(req, res);
   }
 
-  @Auth('anbu')
+  @Auth(UserRole.KAGE)
   @Post('me')
   me(@Req() req: AuthenticatedRequest) {
     console.log(req.user);

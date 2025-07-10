@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../../users/users.service';
 import * as bcrypt from 'bcrypt';
-import { AuthenticatedRequest } from './intefaces/authenticated-request.interface';
+import { AuthenticatedRequest } from '../intefaces/authenticated-request.interface';
 import { Response } from 'express';
 
 @Injectable()
