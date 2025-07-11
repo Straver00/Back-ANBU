@@ -3,6 +3,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RegularMissionsModule } from './regularMissions/regularMissions.module';
 import { BountyMissionsModule } from './bountyMissions/bountyMissions.module';
+import { MissionJoinRequestModule } from './missionJoinRequest/missionJoinRequest.module';
 //import { ChatModule } from './chat/chat.module';
 //import { NotificationsModule } from './notifications/notifications.module';
 //import { ReportsModule } from './reports/reports.module';
@@ -20,6 +21,7 @@ import { typeOrmConfig } from './config/database/type-orm.config';
     UsersModule,
     RegularMissionsModule,
     BountyMissionsModule,
+    MissionJoinRequestModule,
     //ChatModule,
     //NotificationsModule,
     //ReportsModule,
