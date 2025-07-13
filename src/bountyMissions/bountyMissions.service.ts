@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BountyMission } from './entities/bountyMission.entity';
@@ -19,10 +23,17 @@ export class BountyMissionsService {
   async create(
     createBountyMissionDto: CreateBountyMissionDto,
   ): Promise<BountyMission> {
+    // Verificar si la misión ya existe
+    const existingMission = await this.bountyMissionRepository.findOneBy({
+      traitor: { id: createBountyMissionDto.traitorId },
+    });
+    if (existingMission) {
+      throw new BadRequestException('La misión ya existe');
+    }
     const traitor = await this.userRepository.findOneBy({
       id: createBountyMissionDto.traitorId,
     });
-
+    console.log(traitor);
     if (!traitor) {
       throw new Error('Traidor no encontrado');
     }
@@ -62,17 +73,21 @@ export class BountyMissionsService {
       relations: ['traitor'],
     });
     if (!bountyMission) {
-      throw new Error('BountyMission no encontrada');
+      throw new NotFoundException('BountyMission no encontrada');
     }
     if (updateBountyMissionDto.traitorId) {
       const traitor = await this.userRepository.findOneBy({
         id: updateBountyMissionDto.traitorId,
       });
       if (!traitor) {
-        throw new Error('Traidor no encontrado');
+        throw new NotFoundException('Traidor no encontrado');
       }
+      console.log(traitor);
+      traitor.role = UserRole.TRAIDOR;
+      await this.userRepository.save(traitor);
       bountyMission.traitor = traitor;
     }
+
     if (updateBountyMissionDto.reward !== undefined) {
       bountyMission.reward = updateBountyMissionDto.reward;
     }

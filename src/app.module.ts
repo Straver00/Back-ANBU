@@ -4,6 +4,8 @@ import { UsersModule } from './users/users.module';
 import { RegularMissionsModule } from './regularMissions/regularMissions.module';
 import { BountyMissionsModule } from './bountyMissions/bountyMissions.module';
 import { MissionJoinRequestModule } from './missionJoinRequest/missionJoinRequest.module';
+import { MissionEvidenceModule } from './missionEvidence/missionEvidence.module';
+import { BountyEvidenceModule } from './bountyEvidence/bountyEvidence.module';
 //import { ChatModule } from './chat/chat.module';
 //import { NotificationsModule } from './notifications/notifications.module';
 //import { ReportsModule } from './reports/reports.module';
@@ -12,6 +14,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/database/type-orm.config';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { typeOrmConfig } from './config/database/type-orm.config';
     RegularMissionsModule,
     BountyMissionsModule,
     MissionJoinRequestModule,
+    MissionEvidenceModule,
+    BountyEvidenceModule,
+    CloudinaryModule,
     //ChatModule,
     //NotificationsModule,
     //ReportsModule,
