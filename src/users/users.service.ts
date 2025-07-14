@@ -9,6 +9,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/response-user.dto';
+import { UserRole } from './enum/userRole.enum';
 import { plainToInstance } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 
@@ -48,6 +49,18 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
+    }
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async findAgentById(id: string): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({
+      where: { id, role: UserRole.AGENTE },
+    });
+    if (!user) {
+      throw new NotFoundException('Agente no encontrado');
     }
     return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,

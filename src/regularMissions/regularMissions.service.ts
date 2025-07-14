@@ -205,7 +205,7 @@ export class RegularMissionsService {
       .leftJoinAndSelect('mission.participations', 'participation')
       .leftJoinAndSelect('participation.user', 'user')
       .leftJoinAndSelect('mission.captain', 'captain')
-      .where('user.id = :agentId', { agentId })
+      .where('user.id = :agentId OR captain.id = :agentId', { agentId })
       .getMany();
   }
 }
