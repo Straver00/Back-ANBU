@@ -6,6 +6,7 @@ import { BountyMissionsModule } from './bountyMissions/bountyMissions.module';
 import { MissionJoinRequestModule } from './missionJoinRequest/missionJoinRequest.module';
 import { MissionEvidenceModule } from './missionEvidence/missionEvidence.module';
 import { BountyEvidenceModule } from './bountyEvidence/bountyEvidence.module';
+import { OTPModule } from './otp/otp.module';
 //import { ChatModule } from './chat/chat.module';
 //import { NotificationsModule } from './notifications/notifications.module';
 //import { ReportsModule } from './reports/reports.module';
@@ -27,6 +28,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     MissionJoinRequestModule,
     MissionEvidenceModule,
     BountyEvidenceModule,
+    OTPModule,
     CloudinaryModule,
     //ChatModule,
     //NotificationsModule,

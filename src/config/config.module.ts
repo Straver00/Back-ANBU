@@ -4,6 +4,7 @@ import appConfig from './app/app.config';
 import databaseConfig from './database/database.config';
 import sessionConfig from './session/session.config';
 import corsConfig from './cors/cors.config';
+import { emailConfig } from './email';
 import { ConfigService } from './config.service';
 
 @Module({
@@ -11,7 +12,7 @@ import { ConfigService } from './config.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      load: [appConfig, sessionConfig, databaseConfig, corsConfig],
+      load: [appConfig, sessionConfig, databaseConfig, corsConfig, emailConfig],
     }),
   ],
   providers: [ConfigService],
