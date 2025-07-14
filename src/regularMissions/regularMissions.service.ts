@@ -98,16 +98,40 @@ export class RegularMissionsService {
     });
     if (!mission) throw new NotFoundException('Misión no encontrada');
 
+    if (updateDto.codeName !== undefined) {
+      mission.codeName = updateDto.codeName;
+    }
+
+    if (updateDto.objective !== undefined) {
+      mission.objective = updateDto.objective;
+    }
+
+    if (updateDto.description !== undefined) {
+      mission.description = updateDto.description;
+    }
+
+    if (updateDto.deadline !== undefined) {
+      mission.deadline = new Date(updateDto.deadline);
+    }
+
+    if (updateDto.priority !== undefined) {
+      mission.priority = updateDto.priority;
+    }
+
+    if (updateDto.status !== undefined) {
+      mission.status = updateDto.status;
+    }
+
     if (updateDto.captain_id) {
       const captain = await this.userRepository.findOneBy({
         id: updateDto.captain_id,
       });
       if (!captain) throw new BadRequestException('Capitán no existe');
       mission.captain = captain;
-      await this.regularMissionRepository.save(mission);
     }
 
-    // Verificar si los agentes existen
+    await this.regularMissionRepository.save(mission);
+
     if (updateDto.assignedAgents) {
       const assignedAgents = await this.userRepository.find({
         where: { id: In(updateDto.assignedAgents) },
@@ -115,9 +139,7 @@ export class RegularMissionsService {
       if (assignedAgents.length !== updateDto.assignedAgents.length) {
         throw new BadRequestException('Uno o más agentes asignados no existen');
       }
-    }
 
-    if (updateDto.assignedAgents) {
       await this.missionParticipationRepository.delete({
         mission_id: mission.id,
       });
@@ -130,6 +152,7 @@ export class RegularMissionsService {
       );
       await this.missionParticipationRepository.save(participations);
     }
+
     return await this.findOne(id);
   }
 
