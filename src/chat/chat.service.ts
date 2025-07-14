@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Message } from './entities/message.entity';
@@ -9,53 +9,82 @@ import {
   applyBeforeCursor,
   buildPaginatedResponse,
 } from '../utils/pagination/pagination.helper';
+import { RegularMissionsService } from '../regularMissions/regularMissions.service';
+import { UserRole } from '../users/enum/userRole.enum';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
+    private regularMissionService: RegularMissionsService,
   ) {}
 
   async create(dto: CreateMessageDto): Promise<Message> {
-    if (dto.userId) {
-      // TODO: Validate user exists once user service is implemented
-    }
+    // validate mission exists
+    await this.regularMissionService.findOne(dto.missionId);
 
-    if (dto.missionId) {
-      // TODO: Validate mission exists once mission service is implemented
-    }
     const message = this.messageRepository.create({
       ...dto,
     });
 
-    return await this.messageRepository.save(message);
+    const savedMessage = await this.messageRepository.save(message);
+
+    const fullMessage = await this.messageRepository.findOne({
+      where: { id: savedMessage.id },
+      relations: ['user'],
+      select: {
+        id: true,
+        message: true,
+        userId: true,
+        missionId: true,
+        isSystem: true,
+        createdAt: true,
+        user: {
+          id: true,
+          alias: true,
+        },
+      },
+    });
+
+    return fullMessage!;
   }
 
   /**
    * Retrieves the most recent messages from a given mission, ordered by creation time.
    * Applies cursor-based pagination using an optional "before" timestamp.
    *
+   * @param userId - ID of the user requesting the messages
+   * @param userRole - Role of the user requesting the messages
    * @param missionId - ID of the mission whose messages are being fetched
    * @param options - Optional pagination parameters (e.g., cursor, take)
    * @returns A paginated list of messages with metadata
    */
   async getRecentByMission(
+    userId: string,
+    userRole: UserRole,
     missionId: string,
     options?: ChatPaginationQueryDto,
   ): Promise<PaginatedResponse<Message>> {
-    // TODO (security): Add access checks when mission & user services are available
-    // - Ensure mission exists
-    // - Ensure user exists
-    // - Ensure user is allowed to access the mission
+    // validate mission exists
+    await this.regularMissionService.findOne(missionId);
+    const hasAccess = await this.regularMissionService.userHasAccessToMission(
+      userId,
+      missionId,
+    );
+
+    if (userRole != UserRole.KAGE && !hasAccess) throw new ForbiddenException();
 
     const take = options?.take ?? 50;
 
     const query = this.messageRepository
       .createQueryBuilder('message')
+      .leftJoin('message.user', 'user')
+      .addSelect(['user.id', 'user.alias'])
       .where('message.mission_id = :missionId', { missionId })
-      .orderBy('message.created_at', 'ASC')
-      .addOrderBy('message.id', 'ASC') // Tie-breaker for messages created at the same time
+      .andWhere('(user.deletedAt IS NULL OR user.id IS NULL)') // 👈 FIX aquí
+      .orderBy('message.createdAt', 'DESC')
+      .addOrderBy('message.id', 'DESC') // Tie-breaker for messages created at the same time
       .take(take + 1); // Fetch one extra to determine if there's a next page
 
     applyBeforeCursor(query, 'message', 'created_at', options?.before);

@@ -39,12 +39,12 @@ export function buildPaginatedResponse<T>(
   }
 
   return {
-    data: items,
+    data: items.reverse(),
     meta: {
       count: items.length,
       hasMore,
       nextCursor: hasMore
-        ? new Date(cursorExtractor(items[items.length - 1])).toISOString()
+        ? new Date(cursorExtractor(items[0])).toISOString()
         : undefined,
     },
   };

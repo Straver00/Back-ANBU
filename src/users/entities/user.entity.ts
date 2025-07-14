@@ -6,10 +6,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToMany,
   //OneToMany,
 } from 'typeorm';
 import { UserRole } from '../enum/userRole.enum';
 import { Exclude } from 'class-transformer';
+import { Message } from '../../chat/entities/message.entity';
 // import { Message } from '../../chat/entities/message.entity';
 
 @Entity('users')
@@ -38,8 +40,8 @@ export class User {
   @Column({ default: true })
   active: boolean;
 
-  // @OneToMany(() => Message, (message) => message.user)
-  // messages: Message[];
+  @OneToMany(() => Message, (message) => message.user)
+  messages: Message[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -26,6 +26,7 @@ export class AuthService {
         if (err) {
           return reject(err instanceof Error ? err : new Error(String(err)));
         }
+        req.session.userId = req.user.id;
 
         const { id, email, role } = req.user;
         resolve({ id, email, role });

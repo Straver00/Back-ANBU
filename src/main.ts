@@ -3,11 +3,11 @@ import { AppModule } from './app.module';
 import { ConfigService } from './config/config.service';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
-import { CustomSocketAdapter } from './common/adapters/socket-io.adapter';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import * as connectPgSimple from 'connect-pg-simple';
 import { pgSessionPool } from './config/database/pg-session.pool';
+import { UsersService } from './users/users.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,24 +17,26 @@ async function bootstrap() {
   const { secret, maxAge, secure, name } = configService.getSessionConfig();
 
   const PgSession = connectPgSimple(session);
-  app.use(
-    session({
-      store: new PgSession({
-        pool: pgSessionPool,
-        tableName: 'session',
-      }),
-      secret: secret,
-      resave: false,
-      saveUninitialized: false,
-      name: name,
-      cookie: {
-        maxAge: maxAge,
-        httpOnly: true,
-        secure: secure,
-        sameSite: 'lax',
-      },
+
+  const sessionMiddleware = session({
+    store: new PgSession({
+      pool: pgSessionPool,
+      tableName: 'session',
     }),
-  );
+    secret: secret,
+    resave: false,
+    saveUninitialized: false,
+    name: name,
+    cookie: {
+      maxAge: maxAge,
+      httpOnly: true,
+      secure: secure,
+      sameSite: 'lax',
+    },
+  });
+
+  // Aplicar el middleware a la aplicación
+  app.use(sessionMiddleware);
 
   app.use(passport.initialize());
   app.use(passport.session());
@@ -85,8 +87,11 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type,Authorization',
   });
+  // const usersService = app.get(UsersService);
 
-  app.useWebSocketAdapter(new CustomSocketAdapter(app));
+  // app.useWebSocketAdapter(
+  //   new CustomSocketAdapter(app, usersService, sessionMiddleware),
+  // );
 
   const { port } = configService.getAppConfig();
   await app.listen(port);

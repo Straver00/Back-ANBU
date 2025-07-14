@@ -170,6 +170,35 @@ export class RegularMissionsService {
     });
   }
 
+  async userHasAccessToMission(
+    userId: string,
+    missionId: string,
+  ): Promise<boolean> {
+    return await this.regularMissionRepository.exists({
+      relations: ['captain', 'participations', 'participations.user'],
+      where: [
+        {
+          participations: {
+            user_id: userId,
+          },
+          id: missionId,
+        },
+        {
+          captain: {
+            id: userId,
+          },
+          id: missionId,
+        },
+      ],
+    });
+  }
+
+  async getUsersInMission(missionId: string) {
+    return await this.missionParticipationRepository.find({
+      where: { mission_id: missionId },
+    });
+  }
+
   async findAssignedToAgent(agentId: string): Promise<RegularMission[]> {
     return await this.regularMissionRepository
       .createQueryBuilder('mission')
