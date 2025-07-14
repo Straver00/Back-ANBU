@@ -3,12 +3,16 @@ import { appSchema } from '../app';
 import { databaseSchema } from '../database';
 import { sessionSchema } from '../session';
 import { corsSchema } from '../cors';
+import { cloudinarySchema } from '../cloudinary/cloudinary.schema';
+import { emailSchema } from '../email/email.schema';
 import * as fs from 'fs';
 
 export const envSchema = appSchema
   .merge(databaseSchema)
   .merge(sessionSchema)
   .merge(corsSchema)
+  .merge(cloudinarySchema)
+  .merge(emailSchema)
   .superRefine((env, ctx) => {
     if (env.DB_SSL) {
       if (!env.DB_URL_CA || env.DB_URL_CA.trim() === '') {
