@@ -21,9 +21,9 @@ export class AuthController {
     return this.authService.logout(req, res);
   }
 
-  @Auth(UserRole.KAGE)
+  @Auth()
   @Post('me')
   me(@Req() req: AuthenticatedRequest) {
-    console.log(req.user);
+    return req.user;
   }
 }

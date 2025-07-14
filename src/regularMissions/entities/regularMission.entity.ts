@@ -14,6 +14,7 @@ import { MissionParticipation } from './missionParticipation.entity';
 //import { Message } from '../../chat/entities/message.entity';
 import { MissionPriority } from '../enum/missionPriority.enum';
 import { MissionStatus } from '../enum/missionStatus.enum';
+import { Message } from '../../chat/entities/message.entity';
 
 @Entity('regular_missions')
 export class RegularMission {
@@ -64,8 +65,8 @@ export class RegularMission {
   }
 
   // Relación con mensajes (descomenta si la usas)
-  // @OneToMany(() => Message, (message) => message.mission)
-  // messages: Message[];
+  @OneToMany(() => Message, (message) => message.mission)
+  messages: Message[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { TimestampedEntity } from 'src/common/entities/timestamped.entity';
+import { RegularMission } from '../../regularMissions/entities/regularMission.entity';
 //import { Mission } from '../../regularMissions/entities/regularMission.entity';
 
 /**
@@ -31,39 +32,39 @@ export class Message extends TimestampedEntity {
    * The user who sent the message.
    * Nullable for system-generated messages.
    */
-  // @ManyToOne(() => User, (user) => user.messages, {
-  //   nullable: true,
-  //   onDelete: 'CASCADE',
-  // })
-  // @JoinColumn({ name: 'user_id' })
-  // user?: User;
+  @ManyToOne(() => User, (user) => user.messages, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user?: User;
 
   // /**
   //  * ID of the user who sent the message.
   //  * Matches `user.id` if present.
   //  */
-  // @Column({ name: 'user_id', type: 'uuid' })
-  // @RelationId((message: Message) => message.user)
-  // @Index()
-  // userId?: string;
+  @Column({ name: 'user_id', type: 'uuid' })
+  @RelationId((message: Message) => message.user)
+  @Index()
+  userId?: string;
 
   /**
    * The mission this message belongs to.
    */
-  // @ManyToOne(() => Mission, (mission) => mission.messages, {
-  //   nullable: false,
-  //   onDelete: 'CASCADE',
-  // })
-  // @JoinColumn({ name: 'mission_id' })
-  // mission: Mission;
+  @ManyToOne(() => RegularMission, (mission) => mission.messages, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'mission_id' })
+  mission: RegularMission;
 
   /**
    * ID of the associated mission.
    */
-  // @Column({ name: 'mission_id', type: 'uuid' })
-  // @RelationId((message: Message) => message.mission)
-  // @Index()
-  // missionId: string;
+  @Column({ name: 'mission_id', type: 'uuid' })
+  @RelationId((message: Message) => message.mission)
+  @Index()
+  missionId: string;
 
   /**
    * Message content.
