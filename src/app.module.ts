@@ -9,7 +9,7 @@ import { BountyEvidenceModule } from './bountyEvidence/bountyEvidence.module';
 import { OTPModule } from './otp/otp.module';
 import { ChatModule } from './chat/chat.module';
 //import { NotificationsModule } from './notifications/notifications.module';
-//import { ReportsModule } from './reports/reports.module';
+import { ReportsModule } from './reports/reports.module';
 import { ConfigurationModule } from './config/config.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -32,7 +32,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CloudinaryModule,
     ChatModule,
     //NotificationsModule,
-    //ReportsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

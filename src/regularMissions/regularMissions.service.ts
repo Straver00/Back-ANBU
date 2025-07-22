@@ -8,6 +8,7 @@ import { Repository, In } from 'typeorm';
 import { RegularMission } from './entities/regularMission.entity';
 import { MissionParticipation } from './entities/missionParticipation.entity';
 import { User } from '../users/entities/user.entity';
+import { UserRole } from '../users/enum/userRole.enum';
 import { CreateRegularMissionDto } from './dto/create-regularMission.dto';
 import { UpdateRegularMissionDto } from './dto/update-regularMission.dto';
 import { MissionPriority } from './enum/missionPriority.enum';
@@ -35,6 +36,13 @@ export class RegularMissionsService {
       throw new BadRequestException('El capitán especificado no existe');
     }
 
+    // Verificar que el capitán no sea traidor
+    if (captain.role === UserRole.TRAIDOR) {
+      throw new BadRequestException(
+        `El usuario ${captain.alias} es un traidor y no puede ser capitán de una misión`,
+      );
+    }
+
     // Verificar que los agentes asignados existen
     if (createRegularMissionDto.assignedAgents.length > 0) {
       const assignedAgents = await this.userRepository.find({
@@ -44,6 +52,17 @@ export class RegularMissionsService {
         assignedAgents.length !== createRegularMissionDto.assignedAgents.length
       ) {
         throw new BadRequestException('Uno o más agentes asignados no existen');
+      }
+
+      // Verificar que ningún agente asignado sea traidor
+      const traitors = assignedAgents.filter(
+        (agent) => agent.role === UserRole.TRAIDOR,
+      );
+      if (traitors.length > 0) {
+        const traitorAliases = traitors.map((t) => t.alias).join(', ');
+        throw new BadRequestException(
+          `Los siguientes usuarios son traidores y no pueden ser asignados a misiones: ${traitorAliases}`,
+        );
       }
     }
 
@@ -127,6 +146,14 @@ export class RegularMissionsService {
         id: updateDto.captain_id,
       });
       if (!captain) throw new BadRequestException('Capitán no existe');
+
+      // Verificar que el nuevo capitán no sea traidor
+      if (captain.role === UserRole.TRAIDOR) {
+        throw new BadRequestException(
+          `El usuario ${captain.alias} es un traidor y no puede ser capitán de una misión`,
+        );
+      }
+
       mission.captain = captain;
     }
 
@@ -138,6 +165,17 @@ export class RegularMissionsService {
       });
       if (assignedAgents.length !== updateDto.assignedAgents.length) {
         throw new BadRequestException('Uno o más agentes asignados no existen');
+      }
+
+      // Verificar que ningún agente asignado sea traidor
+      const traitors = assignedAgents.filter(
+        (agent) => agent.role === UserRole.TRAIDOR,
+      );
+      if (traitors.length > 0) {
+        const traitorAliases = traitors.map((t) => t.alias).join(', ');
+        throw new BadRequestException(
+          `Los siguientes usuarios son traidores y no pueden ser asignados a misiones: ${traitorAliases}`,
+        );
       }
 
       await this.missionParticipationRepository.delete({
@@ -153,7 +191,7 @@ export class RegularMissionsService {
       await this.missionParticipationRepository.save(participations);
     }
 
-    return await this.findOne(id);
+    return await this.findOne(mission.id);
   }
 
   async remove(id: string): Promise<void> {
