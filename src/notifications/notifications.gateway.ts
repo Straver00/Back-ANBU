@@ -1,12 +1,9 @@
 import {
-  ConnectedSocket,
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import * as session from 'express-session';
@@ -22,6 +19,7 @@ import {
   AuthenticatedRequest,
 } from '../common/interfaces/authenticated-socket.interface';
 import { NotificationsService } from './notifications.service';
+import { Notification } from './entities/notification.entity';
 
 @WebSocketGateway({
   namespace: 'notifications',
@@ -44,7 +42,6 @@ export class NotificationsGateway
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-    private readonly notificationService: NotificationsService,
   ) {
     const { secret, maxAge, secure, name } =
       this.configService.getSessionConfig();
@@ -134,14 +131,49 @@ export class NotificationsGateway
     }
   }
 
-  @SubscribeMessage('markAllAsRead')
-  async handleMarkAllAsRead(@ConnectedSocket() client: AuthenticatedSocket) {
-    const user = client.data?.user;
-    if (!user) throw new WsException('Unauthorized');
+  /**
+   * Enviar una notificación a un solo usuario por su ID.
+   */
+  sendToUser(userId: string, notification: Notification) {
+    this.server.to(`user:${userId}`).emit('notifications:new', notification);
+  }
 
-    // Aquí podrías llamar al servicio que actualiza todas sus notificaciones
-    await this.notificationService.markAllAsRead(user.id);
+  /**
+   * Enviar una misma notificación a varios usuarios (bulk).
+   */
+  sendToUsersBulk(notifications: Notification[]) {
+    console.log(
+      `📨 Enviando ${notifications.length} notificaciones en bulk...`,
+    );
 
-    client.emit('notifications:updated'); // o cualquier feedback necesario
+    const groupedByUser = new Map<string, Notification[]>();
+
+    for (const notification of notifications) {
+      const userId = notification.userId;
+
+      if (!groupedByUser.has(userId)) {
+        groupedByUser.set(userId, []);
+      }
+
+      groupedByUser.get(userId)!.push(notification);
+    }
+
+    console.log(
+      `👥 Notificaciones agrupadas por ${groupedByUser.size} usuarios.`,
+    );
+
+    for (const [userId, userNotifications] of groupedByUser.entries()) {
+      console.log(
+        `➡️ Emitiendo ${userNotifications.length} notificaciones a user:${userId}`,
+      );
+
+      this.server
+        .to(`user:${userId}`)
+        .emit('notifications:new', userNotifications);
+
+      console.log(`✅ Emitidas a user:${userId}`);
+    }
+
+    console.log('🚀 Envío bulk de notificaciones finalizado.');
   }
 }

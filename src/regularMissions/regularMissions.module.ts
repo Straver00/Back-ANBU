@@ -5,10 +5,12 @@ import { RegularMissionsService } from './regularMissions.service';
 import { RegularMission } from './entities/regularMission.entity';
 import { MissionParticipation } from './entities/missionParticipation.entity';
 import { User } from '../users/entities/user.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([RegularMission, MissionParticipation, User]),
+    NotificationsModule,
   ],
   controllers: [RegularMissionsController],
   providers: [RegularMissionsService],

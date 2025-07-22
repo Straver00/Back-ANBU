@@ -1,18 +1,23 @@
-import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { NotificationType } from '../enum/notification-type.enum';
-import { DecisionStatus } from '../enum/decision-status.enum';
 
 export class CreateNotificationDto {
   @IsString()
   message: string;
 
-  @IsUUID(undefined, { message: 'El ID del usuario debe ser un UUID válido' })
-  userId: string;
+  @IsArray({ message: 'Debe proporcionar una lista de IDs de usuarios' })
+  @IsUUID('4', {
+    each: true,
+    message: 'Cada ID de usuario debe ser un UUID válido',
+  })
+  userIds: string[];
 
-  @IsEnum(NotificationType)
+  @IsEnum(NotificationType, {
+    message: 'El tipo de notificación no es válido',
+  })
   type: NotificationType;
 
   @IsOptional()
-  @IsEnum(DecisionStatus)
-  decisionStatus?: DecisionStatus;
+  @IsUUID(undefined, { message: 'El contextId debe ser un UUID válido' })
+  contextId?: string;
 }
