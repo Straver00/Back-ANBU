@@ -219,22 +219,6 @@ export class ChatGateway
       });
     }
 
-    const socketsInRoom = (await this.server
-      .in(`mission:${dto.missionId}`)
-      .fetchSockets()) as AuthenticatedRemoteSocket[];
-
-    const connectedUserIds = socketsInRoom
-      .map((s) => s.data?.user?.id)
-      .filter(Boolean);
-
-    const allParticipants = await this.regularMissionService.getUsersInMission(
-      dto.missionId,
-    );
-
-    const disconnectedUsers = allParticipants.filter(
-      (u) => !connectedUserIds.includes(u.id),
-    );
-
     return message;
   }
 }

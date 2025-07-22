@@ -8,7 +8,7 @@ import { MissionEvidenceModule } from './missionEvidence/missionEvidence.module'
 import { BountyEvidenceModule } from './bountyEvidence/bountyEvidence.module';
 import { OTPModule } from './otp/otp.module';
 import { ChatModule } from './chat/chat.module';
-//import { NotificationsModule } from './notifications/notifications.module';
+import { NotificationsModule } from './notifications/notifications.module';
 //import { ReportsModule } from './reports/reports.module';
 import { ConfigurationModule } from './config/config.module';
 import { AppController } from './app.controller';
@@ -31,7 +31,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     OTPModule,
     CloudinaryModule,
     ChatModule,
-    //NotificationsModule,
+    NotificationsModule,
     //ReportsModule,
   ],
   controllers: [AppController],
