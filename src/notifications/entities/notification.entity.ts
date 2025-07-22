@@ -4,42 +4,42 @@ import {
   Column,
   CreateDateColumn,
 } from 'typeorm';
-
-export enum NotificationType {
-  MISSION = 'mission',
-  DECISION = 'decision',
-  INFO = 'info',
-}
-
-export enum DecisionStatus {
-  ACCEPTED = 'accepted',
-  REJECTED = 'rejected',
-}
+import { NotificationType } from '../enum/notification-type.enum';
+import { DecisionStatus } from '../enum/decision-status.enum';
+import { TimestampedEntity } from '../../common/entities/timestamped.entity';
 
 @Entity('notifications')
-export class Notification {
-  @PrimaryGeneratedColumn('uuid')
+export class Notification extends TimestampedEntity {
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 
-  @Column()
+  @Column('text', { name: 'message' })
   message: string;
 
-  @Column()
+  @Column('uuid', { name: 'user_id' })
   userId: string;
 
-  @Column({ type: 'enum', enum: NotificationType })
+  @Column({
+    name: 'type',
+    type: 'enum',
+    enum: NotificationType,
+  })
   type: NotificationType;
 
-  @Column({ default: false })
+  @Column('uuid', { name: 'context_id', nullable: true })
+  contextId: string | null;
+
+  @Column('boolean', {
+    name: 'is_read',
+    default: false,
+  })
   isRead: boolean;
 
   @Column({
+    name: 'decision_status',
     type: 'enum',
     enum: DecisionStatus,
     nullable: true,
   })
   decisionStatus: DecisionStatus | null;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }
