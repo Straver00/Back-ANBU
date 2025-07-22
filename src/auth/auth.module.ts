@@ -6,9 +6,10 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { SessionSerializer } from './serializers/session.serializer';
 import { UsersModule } from '../users/users.module';
 import { SessionService } from './services/session.service';
+import { OTPModule } from '../otp/otp.module';
 
 @Module({
-  imports: [PassportModule.register({ session: true }), UsersModule],
+  imports: [PassportModule.register({ session: true }), UsersModule, OTPModule],
   controllers: [AuthController],
   providers: [AuthService, SessionService, LocalStrategy, SessionSerializer],
 })

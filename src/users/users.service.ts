@@ -55,6 +55,16 @@ export class UsersService {
     });
   }
 
+  async findOneByEmail(email: string): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
+  }
+
   async findAgentById(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id, role: UserRole.AGENTE },
