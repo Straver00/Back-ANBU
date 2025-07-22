@@ -4,20 +4,52 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
 import { DecisionStatus } from './enum/decision-status.enum';
+import { NotificationsGateway } from './notifications.gateway';
+import { NotificationType } from './enum/notification-type.enum';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   /**
-   * Crea una nueva notificación.
+   * Crea y envía una notificación a múltiples usuarios (bulk)
    */
-  async create(dto: CreateNotificationDto): Promise<Notification> {
-    const notification = this.notificationRepository.create({ ...dto });
-    return await this.notificationRepository.save(notification);
+  async createAndSendBulk(
+    notification: CreateNotificationDto,
+  ): Promise<Notification[]> {
+    const { userIds } = notification;
+
+    console.log(`🛠️ Creando notificaciones para ${userIds.length} usuarios...`);
+
+    const notifications = userIds.map((userId) =>
+      this.notificationRepository.create({
+        ...notification,
+        userId,
+      }),
+    );
+
+    const savedNotifications =
+      await this.notificationRepository.save(notifications);
+
+    console.log(
+      `💾 Guardadas ${savedNotifications.length} notificaciones en la base de datos.`,
+    );
+
+    for (const notif of savedNotifications) {
+      console.log(
+        `📤 Enviando notificación "${notif.id}" al usuario ${notif.userId}...`,
+      );
+      this.notificationsGateway.sendToUser(notif.userId, notif);
+      console.log(`✅ Notificación "${notif.id}" enviada.`);
+    }
+
+    console.log(`🚀 Proceso de envío de notificaciones completado.`);
+
+    return savedNotifications;
   }
 
   /**

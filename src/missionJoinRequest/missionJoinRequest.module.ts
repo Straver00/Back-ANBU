@@ -6,6 +6,7 @@ import { MissionJoinRequest } from './entities/missionJoinRequest.entity';
 import { User } from '../users/entities/user.entity';
 import { RegularMission } from '../regularMissions/entities/regularMission.entity';
 import { MissionParticipation } from '../regularMissions/entities/missionParticipation.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MissionParticipation } from '../regularMissions/entities/missionPartici
       RegularMission,
       MissionParticipation,
     ]),
+    NotificationsModule,
   ],
   controllers: [MissionJoinRequestController],
   providers: [MissionJoinRequestService],

@@ -15,6 +15,8 @@ import { RequestStatus } from './enum/requestStatus.enum';
 import { RequestType } from './enum/requestType.enum';
 import { MissionStatus } from '../regularMissions/enum/missionStatus.enum';
 import { UserRole } from '../users/enum/userRole.enum';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/enum/notification-type.enum';
 
 @Injectable()
 export class MissionJoinRequestService {
@@ -27,6 +29,7 @@ export class MissionJoinRequestService {
     private readonly regularMissionRepository: Repository<RegularMission>,
     @InjectRepository(MissionParticipation)
     private readonly missionParticipationRepository: Repository<MissionParticipation>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(
@@ -82,7 +85,27 @@ export class MissionJoinRequestService {
       status: RequestStatus.PENDIENTE,
     });
 
-    return this.missionJoinRequestRepository.save(missionJoinRequest);
+    const savedRequest =
+      await this.missionJoinRequestRepository.save(missionJoinRequest);
+    // 🔔 Enviar notificación según quién hace la solicitud
+    const recipientId = createMissionJoinRequestDto.isReinforcement
+      ? agent.id
+      : mission.captain?.id;
+
+    const message = createMissionJoinRequestDto.isReinforcement
+      ? `Has sido invitado a unirte como refuerzo a la misión "${mission.codeName}".`
+      : `${agent.alias} ha solicitado unirse a la misión "${mission.codeName}".`;
+
+    if (recipientId) {
+      await this.notificationsService.createAndSendBulk({
+        userIds: [recipientId],
+        message,
+        type: NotificationType.MISSION_JOIN_REQUEST,
+        contextId: savedRequest.id,
+      });
+    }
+
+    return savedRequest;
   }
 
   async findAll(): Promise<MissionJoinRequest[]> {

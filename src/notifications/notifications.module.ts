@@ -15,5 +15,6 @@ import { ConfigurationModule } from '../config/config.module';
   ],
   controllers: [NotificationsController],
   providers: [NotificationsGateway, NotificationsService],
+  exports: [NotificationsService],
 })
 export class NotificationsModule {}
